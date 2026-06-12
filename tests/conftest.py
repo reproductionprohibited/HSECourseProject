@@ -16,6 +16,7 @@ def app():
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
+    SQLModel.metadata.drop_all(get_engine())
     SQLModel.metadata.create_all(get_engine())
     yield
     SQLModel.metadata.drop_all(get_engine())
@@ -59,6 +60,26 @@ def route_creator(client: TestClient) -> dict:
 
     with sync_session() as session:
         role = Role(name="route_creator")
+        session.add(role)
+        session.flush()
+        link = UserRoleLink(user_id=user_id, role_id=role.id)
+        session.add(link)
+        session.commit()
+
+    return {"token": token, "user_id": str(user_id)}
+
+
+@pytest.fixture
+def admin_user(client: TestClient) -> dict:
+    response = client.post(
+        "/auth/signup", json={"username": "admin", "password": "password123"}
+    )
+    token = response.json()["access_token"]
+    me = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
+    user_id = uuid.UUID(me.json()["id"])
+
+    with sync_session() as session:
+        role = Role(name="admin")
         session.add(role)
         session.flush()
         link = UserRoleLink(user_id=user_id, role_id=role.id)

@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from fastapi.security import HTTPBearer
 from sqlmodel import Session
 
-from app.auth.jwt import JWTService
+from app.user.jwt import JWTService
 from app.db.models import User
 from app.repositories.exceptions import NotFoundException
 from app.repositories.user import UserRepository

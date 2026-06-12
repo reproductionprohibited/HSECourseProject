@@ -66,3 +66,14 @@ class ImpressionRepository:
     def delete(self, impression: Impression) -> None:
         self.session.delete(impression)
         self.session.commit()
+
+    def get_by_user(
+        self, user_id: uuid.UUID, offset: int = 0, limit: int = 20
+    ) -> list[Impression]:
+        query = (
+            select(Impression)
+            .where(Impression.created_by == user_id)
+            .offset(offset)
+            .limit(limit)
+        )
+        return list(self.session.exec(query).all())

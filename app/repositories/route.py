@@ -87,6 +87,18 @@ class RouteRepository:
         )
         return list(self.session.exec(query).all())
 
+    def get_by_user(
+        self,
+        target_user_id: uuid.UUID,
+        show_private: bool = False,
+        offset: int = 0,
+        limit: int = 20,
+    ) -> list[Route]:
+        query = select(Route).where(Route.created_by == target_user_id)
+        if not show_private:
+            query = query.where(Route.is_private == False)  # noqa: E712
+        return list(self.session.exec(query.offset(offset).limit(limit)).all())
+
 
 class RoutePointRepository:
     def __init__(self, session: Session):

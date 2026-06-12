@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlmodel import Session
 
-from app.auth.utils import get_user, bearer_schema
+from app.user.utils import get_user, bearer_schema
 from app.db.engine import sync_session
 from app.db.models import User, TargetType, ReactionType
 from app.impressions.routes import _impression_to_response
