@@ -15,3 +15,8 @@ default:
 test:
 	docker-compose exec app uv run pytest --cov=app --cov-report=term-missing
 
+create-admin:
+	docker-compose exec app uv run python -m app.cli.manage create-admin $(USERNAME) $(PASSWORD)
+
+grant-role:
+	docker-compose exec app uv run python -m app.cli.manage grant-role $(USERNAME) $(ROLE)
