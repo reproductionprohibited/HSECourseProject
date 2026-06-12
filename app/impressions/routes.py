@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from sqlmodel import Session
 
+from app.repositories.user import UserRepository
 from app.user.utils import get_user, bearer_schema
 from app.db.engine import sync_session
 from app.impressions.schemas import (
@@ -82,6 +83,7 @@ def update_impression(
     session: Session = Depends(get_session),
 ):
     current_user = get_user(session, credentials.credentials)
+    user_repo = UserRepository(session)
 
     try:
         impression = ImpressionRepository(session).get_by_id(impression_id)
@@ -90,7 +92,9 @@ def update_impression(
             status_code=HTTPStatus.NOT_FOUND, detail="Impression not found"
         )
 
-    if impression.created_by != current_user.id:
+    if impression.created_by != current_user.id and not user_repo.has_role(
+        current_user.id, "admin"
+    ):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Access denied")
 
     impression = ImpressionRepository(session).update(
@@ -106,6 +110,7 @@ def delete_impression(
     session: Session = Depends(get_session),
 ):
     current_user = get_user(session, credentials.credentials)
+    user_repo = UserRepository(session)
 
     try:
         impression = ImpressionRepository(session).get_by_id(impression_id)
@@ -114,7 +119,9 @@ def delete_impression(
             status_code=HTTPStatus.NOT_FOUND, detail="Impression not found"
         )
 
-    if impression.created_by != current_user.id:
+    if impression.created_by != current_user.id and not user_repo.has_role(
+        current_user.id, "admin"
+    ):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Access denied")
 
     ImpressionRepository(session).delete(impression)

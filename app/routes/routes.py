@@ -166,13 +166,16 @@ def update_route(
 ):
     current_user = get_user(session, credentials.credentials)
     repo = RouteRepository(session)
+    user_repo = UserRepository(session)
 
     try:
         route = repo.get_by_id(route_id)
     except NotFoundException:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Route not found")
 
-    if route.created_by != current_user.id:
+    if route.created_by != current_user.id and not user_repo.has_role(
+        current_user.id, "admin"
+    ):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Access denied")
 
     route = repo.update(route, title=body.title, description=body.description)
@@ -188,13 +191,16 @@ def delete_route(
 ):
     current_user = get_user(session, credentials.credentials)
     repo = RouteRepository(session)
+    user_repo = UserRepository(session)
 
     try:
         route = repo.get_by_id(route_id)
     except NotFoundException:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Route not found")
 
-    if route.created_by != current_user.id:
+    if route.created_by != current_user.id and not user_repo.has_role(
+        current_user.id, "admin"
+    ):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Access denied")
 
     repo.delete(route)
@@ -269,13 +275,16 @@ def update_point(
 ):
     current_user = get_user(session, credentials.credentials)
     repo = RouteRepository(session)
+    user_repo = UserRepository(session)
 
     try:
         route = repo.get_by_id(route_id)
     except NotFoundException:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Route not found")
 
-    if route.created_by != current_user.id:
+    if route.created_by != current_user.id and not user_repo.has_role(
+        current_user.id, "admin"
+    ):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Access denied")
 
     point_repo = RoutePointRepository(session)
@@ -299,13 +308,16 @@ def delete_point(
 ):
     current_user = get_user(session, credentials.credentials)
     repo = RouteRepository(session)
+    user_repo = UserRepository(session)
 
     try:
         route = repo.get_by_id(route_id)
     except NotFoundException:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Route not found")
 
-    if route.created_by != current_user.id:
+    if route.created_by != current_user.id and not user_repo.has_role(
+        current_user.id, "admin"
+    ):
         raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="Access denied")
 
     point_repo = RoutePointRepository(session)
