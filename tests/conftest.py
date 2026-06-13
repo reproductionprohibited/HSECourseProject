@@ -18,6 +18,7 @@ def recreate_empty_db():
     SQLModel.metadata.drop_all(get_engine())
     SQLModel.metadata.create_all(get_engine())
 
+
 @pytest.fixture(scope="session", autouse=True)
 def setup_db():
     recreate_empty_db()
