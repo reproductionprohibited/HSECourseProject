@@ -81,6 +81,19 @@ def logout(
     UserRepository(session).increment_token_version(current_user)
 
 
+@auth_router.post("/refresh", response_model=TokenResponse)
+def refresh_token(
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_schema),
+    session: Session = Depends(get_session),
+):
+    current_user = get_user(session, credentials.credentials)
+    UserRepository(session).increment_token_version(current_user)
+    access_token = JWTService.create_access_token(
+        user_id=str(current_user.id), token_version=current_user.token_version
+    )
+    return TokenResponse(access_token=access_token)
+
+
 @auth_router.get("/me", response_model=UserResponse)
 def me(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_schema),

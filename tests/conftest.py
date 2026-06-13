@@ -14,12 +14,15 @@ def app():
     return create_app()
 
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_db():
+def recreate_empty_db():
     SQLModel.metadata.drop_all(get_engine())
     SQLModel.metadata.create_all(get_engine())
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_db():
+    recreate_empty_db()
     yield
-    SQLModel.metadata.drop_all(get_engine())
+    recreate_empty_db()
 
 
 @pytest.fixture
